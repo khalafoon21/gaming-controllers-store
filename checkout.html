@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>إتمام الطلب - Spider Controller</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="top-offer">شحن مجاني للطلبات فوق 1500 جنيه | <span>عرض محدود</span></div>
+
+    <header class="main-header">
+      <div class="brand">SPIDER <span>CONTROLLER</span></div>
+      <nav>
+        <a href="./index.html">الرئيسية</a>
+        <a href="./index.html#products">الأكسسوارات</a>
+        <a href="./index.html#features">المميزات</a>
+        <a href="#">اتصل بنا</a>
+      </nav>
+      <div class="header-actions">
+        <a href="./login.html" class="ghost-btn">حسابي</a>
+        <a href="./cart.html" class="cart-btn">السلة <span id="cartCount">0</span></a>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="checkout-page">
+        <h1>إتمام الطلب</h1>
+        <div class="checkout-layout">
+          <div class="checkout-form">
+            <form id="checkoutForm">
+              <div class="form-section">
+                <h3>معلومات الشحن</h3>
+                <div class="form-group">
+                  <label for="fullName">الاسم الكامل</label>
+                  <input type="text" id="fullName" required />
+                </div>
+                <div class="form-group">
+                  <label for="phone">رقم الهاتف</label>
+                  <input type="tel" id="phone" required />
+                </div>
+                <div class="form-group">
+                  <label for="address">العنوان بالتفصيل</label>
+                  <textarea id="address" rows="3" required></textarea>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="city">المحافظة</label>
+                    <select id="city" required>
+                      <option value="">اختر المحافظة</option>
+                      <option value="cairo">القاهرة</option>
+                      <option value="giza">الجيزة</option>
+                      <option value="alex">الإسكندرية</option>
+                      <option value="other">أخرى</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="postal">الرمز البريدي</label>
+                    <input type="text" id="postal" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3>طريقة الشحن</h3>
+                <div class="shipping-options">
+                  <label class="radio-card">
+                    <input type="radio" name="shipping" value="standard" checked />
+                    <div>
+                      <strong>شحن عادي (3-5 أيام)</strong>
+                      <span>50 EGP</span>
+                    </div>
+                  </label>
+                  <label class="radio-card">
+                    <input type="radio" name="shipping" value="express" />
+                    <div>
+                      <strong>شحن سريع (1-2 يوم)</strong>
+                      <span>100 EGP</span>
+                    </div>
+                  </label>
+                  <label class="radio-card">
+                    <input type="radio" name="shipping" value="free" />
+                    <div>
+                      <strong>شحن مجاني (للطلبات فوق 1500 جنيه)</strong>
+                      <span id="freeShippingPrice">0 EGP</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3>طريقة الدفع</h3>
+                <div class="payment-options">
+                  <label class="radio-card">
+                    <input type="radio" name="payment" value="cod" checked />
+                    <div>
+                      <strong>الدفع عند الاستلام</strong>
+                    </div>
+                  </label>
+                  <label class="radio-card">
+                    <input type="radio" name="payment" value="card" />
+                    <div>
+                      <strong>بطاقة ائتمان / فيزا</strong>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <button type="submit" class="cta-btn full-width">تأكيد الطلب</button>
+            </form>
+          </div>
+
+          <aside class="checkout-summary">
+            <h3>ملخص الطلب</h3>
+            <div id="orderItems"></div>
+            <hr />
+            <div class="summary-row">
+              <span>المجموع الفرعي</span>
+              <span id="subtotal">0 EGP</span>
+            </div>
+            <div class="summary-row">
+              <span>الشحن</span>
+              <span id="shippingCost">50 EGP</span>
+            </div>
+            <hr />
+            <div class="summary-row total">
+              <span>الإجمالي</span>
+              <span id="total">0 EGP</span>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">© 2026 Spider Controller - جميع الحقوق محفوظة</footer>
+
+    <script src="./checkout.js"></script>
+  </body>
+</html>

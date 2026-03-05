@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>تسجيل الدخول - Spider Controller</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="top-offer">شحن مجاني للطلبات فوق 1500 جنيه | <span>عرض محدود</span></div>
+
+    <header class="main-header">
+      <div class="brand">SPIDER <span>CONTROLLER</span></div>
+      <nav>
+        <a href="./index.html">الرئيسية</a>
+        <a href="./index.html#products">الأكسسوارات</a>
+        <a href="./index.html#features">المميزات</a>
+        <a href="#">اتصل بنا</a>
+      </nav>
+      <div class="header-actions">
+        <a href="./login.html" class="ghost-btn">حسابي</a>
+        <a href="./cart.html" class="cart-btn">السلة <span id="cartCount">0</span></a>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="auth-page">
+        <div class="auth-card">
+          <h1>تسجيل الدخول</h1>
+          <form id="loginForm" class="auth-form">
+            <div class="form-group">
+              <label for="email">البريد الإلكتروني</label>
+              <input type="email" id="email" required placeholder="example@email.com" />
+            </div>
+            <div class="form-group">
+              <label for="password">كلمة المرور</label>
+              <input type="password" id="password" required placeholder="••••••••" />
+            </div>
+            <button type="submit" class="cta-btn full-width">دخول</button>
+          </form>
+          <p class="auth-switch">ليس لديك حساب؟ <a href="./register.html">إنشاء حساب جديد</a></p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">© 2026 Spider Controller - جميع الحقوق محفوظة</footer>
+
+    <script src="./login.js"></script>
+  </body>
+</html>

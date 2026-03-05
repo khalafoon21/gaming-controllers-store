@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>السلة - Spider Controller</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="top-offer">شحن مجاني للطلبات فوق 1500 جنيه | <span>عرض محدود</span></div>
+
+    <header class="main-header">
+      <div class="brand">SPIDER <span>CONTROLLER</span></div>
+      <nav>
+        <a href="./index.html">الرئيسية</a>
+        <a href="./index.html#products">الأكسسوارات</a>
+        <a href="./index.html#features">المميزات</a>
+        <a href="#">اتصل بنا</a>
+      </nav>
+      <div class="header-actions">
+        <a href="./login.html" class="ghost-btn">حسابي</a>
+        <a href="./cart.html" class="cart-btn">السلة <span id="cartCount">0</span></a>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="cart-page">
+        <h1>سلة التسوق</h1>
+        <div class="cart-layout">
+          <div class="cart-items" id="cartItems">
+            <p class="empty-cart">السلة فارغة حاليًا</p>
+          </div>
+          <aside class="cart-summary">
+            <h3>ملخص الطلب</h3>
+            <div class="summary-row">
+              <span>المجموع الفرعي</span>
+              <span id="subtotal">0 EGP</span>
+            </div>
+            <div class="summary-row">
+              <span>الشحن</span>
+              <span id="shipping">مجاني</span>
+            </div>
+            <hr />
+            <div class="summary-row total">
+              <span>الإجمالي</span>
+              <span id="total">0 EGP</span>
+            </div>
+            <a href="./checkout.html" class="cta-btn full-width" id="checkoutBtn">إتمام الطلب</a>
+            <a href="./index.html#products" class="ghost-btn full-width">متابعة التسوق</a>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">© 2026 Spider Controller - جميع الحقوق محفوظة</footer>
+
+    <script src="./cart.js"></script>
+  </body>
+</html>
