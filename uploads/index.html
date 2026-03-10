@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HIE Room Booking System</title>
+
+  <style>
+    /* =====================================================
+       تنسيق الصفحة العامة
+       ===================================================== */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated Background Particles */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      animation: float linear infinite;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    /* Animated Gradient Background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg,
+        transparent,
+        rgba(45, 106, 79, 0.1),
+        transparent,
+        rgba(64, 145, 108, 0.1));
+      animation: gradientShift 15s ease infinite;
+      z-index: 0;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      25% { transform: translate(10%, 10%) rotate(90deg); }
+      50% { transform: translate(0, 20%) rotate(180deg); }
+      75% { transform: translate(-10%, 10%) rotate(270deg); }
+    }
+    
+    /* =====================================================
+       البطاقة الرئيسية
+       ===================================================== */
+
+    .login-card {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      border-radius: 25px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4),
+                  0 0 0 1px rgba(255, 255, 255, 0.1),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      width: 440px;
+      overflow: hidden;
+      animation: fadeInScale 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      z-index: 10;
+      transition: all 0.4s ease;
+    }
+
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    .login-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 35px 90px rgba(0, 0, 0, 0.5),
+                  0 0 0 1px rgba(255, 255, 255, 0.2);
+    }
+
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+      20%, 40%, 60%, 80% { transform: translateX(10px); }
+    }
+
+    .shake {
+      animation: shake 0.5s ease-in-out;
+    }
+    
+    /* =====================================================
+       الجزء العلوي (اللوجو والعنوان)
+       ===================================================== */
+
+    .top-section {
+      background: linear-gradient(135deg, #1b4332, #2d6a4f, #40916c);
+      padding: 50px 30px;
+      text-align: center;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .top-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg,
+        transparent,
+        rgba(255, 255, 255, 0.05),
+        transparent);
+      animation: rotateBg 10s linear infinite;
+    }
+
+    @keyframes rotateBg {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* دائرة اللوجو */
+
+    .logo-circle {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #fff, #f0f0f0);
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3),
+                  0 0 0 8px rgba(255, 255, 255, 0.1),
+                  0 0 0 16px rgba(255, 255, 255, 0.05);
+      font-size: 42px;
+      animation: pulse 2s ease-in-out infinite;
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    /* اسم المؤسسة */
+
+    .top-section h2 {
+      font-size: 32px;
+      font-weight: bold;
+      letter-spacing: 5px;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      animation: fadeInDown 0.8s ease-out 0.2s both;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* اسم النظام */
+
+    .top-section h1 {
+      font-size: 17px;
+      font-weight: 500;
+      opacity: 0.95;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+      animation: fadeInDown 0.8s ease-out 0.4s both;
+    }
+
+    /* وصف الصفحة */
+
+    .top-section p {
+      font-size: 13px;
+      opacity: 0.85;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+      display: inline-block;
+      padding: 6px 18px;
+      border-radius: 25px;
+      position: relative;
+      z-index: 1;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      animation: fadeInDown 0.8s ease-out 0.6s both;
+    }
+    
+    /* =====================================================
+       قسم النموذج
+       ===================================================== */
+    
+    .form-section {
+      padding: 35px 35px 30px;
+    }
+    
+    /* مجموعة الحقل */
+    
+    .form-group {
+      margin-bottom: 18px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 6px;
+    }
+    
+    /* حقول الإدخال */
+
+    .form-group input {
+      width: 100%;
+      padding: 13px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      outline: none;
+      background: #fafafa;
+    }
+
+    .form-group input:hover {
+      border-color: #2d6a4f;
+      background: #fff;
+    }
+
+    .form-group input:focus {
+      border-color: #2d6a4f;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(45, 106, 79, 0.15),
+                  0 4px 12px rgba(45, 106, 79, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    /* رابط نسيت كلمة المرور */
+    
+    .forgot {
+      text-align: right;
+      font-size: 12px;
+      color: #2d6a4f;
+      cursor: pointer;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+    
+    .forgot:hover {
+      text-decoration: underline;
+    }
+    
+    /* =====================================================
+       رسالة الخطأ
+       ===================================================== */
+    
+    .error-msg {
+      background: #fff0f0;
+      color: #c0392b;
+      border: 1px solid #f5c6cb;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 15px;
+      display: none;
+      text-align: center;
+    }
+    
+    /* =====================================================
+       رسالة النجاح
+       ===================================================== */
+    
+    .success-msg {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 15px;
+      display: none;
+      text-align: center;
+    }
+    
+    /* =====================================================
+       زر تسجيل الدخول
+       ===================================================== */
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #2d6a4f, #40916c, #52b788);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      letter-spacing: 1.5px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(45, 106, 79, 0.3);
+    }
+
+    .login-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent);
+      transition: left 0.5s;
+    }
+
+    .login-btn:hover::before {
+      left: 100%;
+    }
+
+    .login-btn:hover {
+      background: linear-gradient(135deg, #1b4332, #2d6a4f, #40916c);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(45, 106, 79, 0.5);
+    }
+
+    .login-btn:active {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(45, 106, 79, 0.4);
+    }
+
+    .login-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    /* =====================================================
+       الفاصل
+       ===================================================== */
+    
+    .divider {
+      text-align: center;
+      margin: 20px 0;
+      position: relative;
+      color: #999;
+      font-size: 13px;
+    }
+    
+    .divider::before,
+    .divider::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 42%;
+      height: 1px;
+      background: #ddd;
+    }
+    
+    .divider::before { left: 0; }
+    .divider::after  { right: 0; }
+    
+    /* =====================================================
+       زر SSO
+       ===================================================== */
+
+    .sso-btn {
+      width: 100%;
+      padding: 13px;
+      background: white;
+      color: #2d6a4f;
+      border: 2px solid #2d6a4f;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sso-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(45, 106, 79, 0.1);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .sso-btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .sso-btn:hover {
+      background: #e8f5e9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(45, 106, 79, 0.2);
+      border-color: #1b4332;
+    }
+
+    .sso-btn:active {
+      transform: translateY(0);
+    }
+    
+    /* =====================================================
+       تذييل الصفحة
+       ===================================================== */
+    
+    .footer {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 12px;
+      color: #aaa;
+      padding-top: 15px;
+      border-top: 1px solid #f0f0f0;
+    }
+    
+    /* =====================================================
+       Loading Spinner
+       ===================================================== */
+    
+    .spinner {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 3px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Demo credentials box */
+    .demo-box {
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      padding: 15px;
+      border-radius: 12px;
+      margin-top: 20px;
+      font-size: 12px;
+      color: #555;
+      text-align: center;
+      border: 2px dashed #cbd5e0;
+      position: relative;
+      overflow: hidden;
+      animation: fadeIn 1s ease-out 0.8s both;
+    }
+
+    .demo-box::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg,
+        transparent,
+        rgba(45, 106, 79, 0.03),
+        transparent);
+      animation: rotateBg 8s linear infinite;
+    }
+
+    .demo-box strong {
+      color: #2d6a4f;
+      font-size: 13px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .demo-box br + * {
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 500px) {
+      .login-card {
+        width: 95%;
+        margin: 20px;
+      }
+
+      .top-section {
+        padding: 35px 20px;
+      }
+
+      .logo-circle {
+        width: 80px;
+        height: 80px;
+        font-size: 36px;
+      }
+
+      .top-section h2 {
+        font-size: 26px;
+        letter-spacing: 3px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Animated Particles Background -->
+<div class="particles" id="particles"></div>
+
+<!-- =====================================================
+     البطاقة الرئيسية
+     ===================================================== -->
+
+<div class="login-card" id="loginCard">
+
+  <!-- الجزء العلوي -->
+  
+  <div class="top-section">
+    
+    <div class="logo-circle">
+      🏫
+    </div>
+    
+    <h2>HIE</h2>
+    
+    <h1>Room Booking System</h1>
+    
+    <p>Faculty Members Login</p>
+    
+  </div>
+  
+  
+  <!-- قسم النموذج -->
+  
+  <div class="form-section">
+    
+    <!-- رسالة الخطأ -->
+    <div class="error-msg" id="errorMsg">
+      ❌ Invalid email or password. Please try again.
+    </div>
+    
+    <!-- رسالة النجاح -->
+    <div class="success-msg" id="successMsg">
+      ✅ Login successful! Redirecting...
+    </div>
+    
+    <!-- نموذج تسجيل الدخول -->
+    
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      
+      <!-- إدخال البريد الإلكتروني -->
+      
+      <div class="form-group">
+        <label>Email</label>
+        <input
+          type="email"
+          id="emailInput"
+          placeholder="faculty.member@university.edu"
+          required
+        />
+      </div>
+      
+      <!-- إدخال كلمة المرور -->
+      
+      <div class="form-group">
+        <label>Password</label>
+        <input
+          type="password"
+          id="passwordInput"
+          placeholder="Enter your password"
+          required
+        />
+      </div>
+      
+      <!-- رابط نسيت كلمة المرور -->
+      
+      <div class="forgot" onclick="handleForgotPassword()">
+        Forgot Password?
+      </div>
+      
+      <!-- زر تسجيل الدخول -->
+      
+      <button type="submit" class="login-btn" id="loginBtn">
+        <span id="btnText">Login</span>
+        <div class="spinner" id="spinner"></div>
+      </button>
+      
+    </form>
+    
+    <!-- فاصل -->
+    
+    <div class="divider">Or</div>
+    
+    <!-- زر SSO -->
+    
+    <button class="sso-btn" onclick="handleSSO()">
+      🔐 Login with Institute SSO
+    </button>
+    
+    <!-- Demo credentials -->
+    <div class="demo-box">
+      <strong>Demo Accounts:</strong><br>
+      Admin: admin@university.edu / admin123<br>
+      User: sara@university.edu / user123
+    </div>
+    
+    <!-- تذييل الصفحة -->
+    
+    <div class="footer">
+      © 2024 HIE Room Booking System
+    </div>
+    
+  </div>
+  
+</div>
+
+
+<!-- =====================================================
+     JavaScript - منطق تسجيل الدخول
+     ===================================================== -->
+
+<script>
+
+  /* =====================================================
+     إنشاء Animated Particles
+     ===================================================== */
+
+  function createParticles() {
+    const particlesContainer = document.getElementById('particles');
+    const particleCount = 50;
+
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.style.left = Math.random() * 100 + '%';
+      particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+      particle.style.animationDelay = Math.random() * 5 + 's';
+      particle.style.width = particle.style.height = (Math.random() * 3 + 2) + 'px';
+      particlesContainer.appendChild(particle);
+    }
+  }
+
+  createParticles();
+
+  /* =====================================================
+     بيانات المستخدمين (محاكاة قاعدة البيانات)
+     ===================================================== */
+  
+  const users = [
+    {
+      id: 1,
+      name: "Ahmed Admin",
+      email: "admin@university.edu",
+      password: "admin123",
+      role: "admin"
+    },
+    {
+      id: 2,
+      name: "Sara User",
+      email: "sara@university.edu",
+      password: "user123",
+      role: "user"
+    },
+    {
+      id: 3,
+      name: "Mohamed Faculty",
+      email: "faculty.member@university.edu",
+      password: "faculty123",
+      role: "user"
+    }
+  ];
+  
+  
+  /* =====================================================
+     دالة تسجيل الدخول الرئيسية
+     ===================================================== */
+  
+  function handleLogin(event) {
+    
+    // منع إعادة تحميل الصفحة
+    event.preventDefault();
+    
+    // إخفاء رسائل الخطأ السابقة
+    hideMessages();
+    
+    // الحصول على البيانات المدخلة
+    const email    = document.getElementById("emailInput").value.trim();
+    const password = document.getElementById("passwordInput").value.trim();
+    
+    // إظهار حالة التحميل
+    showLoading(true);
+    
+    /*
+    محاكاة تأخير الاتصال بالسيرفر (500ms)
+    في الواقع هذا يكون طلب HTTP للسيرفر
+    */
+    
+    setTimeout(() => {
+      
+      // البحث عن المستخدم في البيانات
+      const user = users.find(u => 
+        u.email === email && u.password === password
+      );
+      
+      // إيقاف حالة التحميل
+      showLoading(false);
+      
+      if (user) {
+        
+        // تسجيل الدخول ناجح
+        
+        // حفظ بيانات المستخدم في localStorage
+        // (يحاكي الـ Session في PHP)
+        
+        localStorage.setItem("user_id",   user.id);
+        localStorage.setItem("user_name", user.name);
+        localStorage.setItem("user_email",user.email);
+        localStorage.setItem("role",      user.role);
+        
+        // إظهار رسالة النجاح
+        showSuccess("✅ Login successful! Redirecting to Dashboard...");
+        
+        // الانتقال إلى صفحة Dashboard بعد ثانية
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 1200);
+        
+      } else {
+        
+        // بيانات خاطئة - إظهار رسالة الخطأ
+        showError("❌ Invalid email or password. Please try again.");
+        
+        // تحريك البطاقة للإشارة إلى الخطأ
+        shakeCard();
+      }
+      
+    }, 500);
+  }
+  
+  
+  /* =====================================================
+     دالة نسيت كلمة المرور
+     ===================================================== */
+  
+  function handleForgotPassword() {
+    const email = document.getElementById("emailInput").value.trim();
+    
+    if (email) {
+      showSuccess(`📧 Password reset link sent to: ${email}`);
+    } else {
+      showError("⚠️ Please enter your email first.");
+    }
+  }
+  
+  
+  /* =====================================================
+     دالة تسجيل الدخول عبر SSO
+     ===================================================== */
+  
+  function handleSSO() {
+    showSuccess("🔐 Redirecting to Institute SSO...");
+    
+    setTimeout(() => {
+      alert("SSO Login - This feature requires server configuration.");
+    }, 800);
+  }
+  
+  
+  /* =====================================================
+     دوال مساعدة للواجهة
+     ===================================================== */
+  
+  // إظهار رسالة الخطأ
+  function showError(msg) {
+    const el = document.getElementById("errorMsg");
+    el.textContent = msg;
+    el.style.display = "block";
+  }
+  
+  // إظهار رسالة النجاح
+  function showSuccess(msg) {
+    const el = document.getElementById("successMsg");
+    el.textContent = msg;
+    el.style.display = "block";
+  }
+  
+  // إخفاء جميع الرسائل
+  function hideMessages() {
+    document.getElementById("errorMsg").style.display   = "none";
+    document.getElementById("successMsg").style.display = "none";
+  }
+  
+  // إظهار/إخفاء حالة التحميل
+  function showLoading(isLoading) {
+    const btn     = document.getElementById("loginBtn");
+    const text    = document.getElementById("btnText");
+    const spinner = document.getElementById("spinner");
+    
+    if (isLoading) {
+      btn.disabled          = true;
+      text.style.display    = "none";
+      spinner.style.display = "block";
+    } else {
+      btn.disabled          = false;
+      text.style.display    = "inline";
+      spinner.style.display = "none";
+    }
+  }
+  
+  // تحريك البطاقة عند الخطأ
+  function shakeCard() {
+    const card = document.getElementById("loginCard");
+    card.classList.add("shake");
+    setTimeout(() => {
+      card.classList.remove("shake");
+    }, 300);
+  }
+
+</script>
+
+</body>
+</html>
