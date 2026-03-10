@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - HIE Room Booking</title>
+  
+  <!-- Chart.js for statistics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <style>
+    /* تنسيق الصفحة العامة */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        radial-gradient(circle at 20% 50%, rgba(45, 106, 79, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(64, 145, 108, 0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* شريط التنقل العلوي */
+    .navbar {
+      background: linear-gradient(135deg, #1b4332, #2d6a4f, #40916c);
+      padding: 18px 40px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      animation: slideDown 0.5s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    /* روابط النافبار */
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      margin-left: 25px;
+      font-weight: 600;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 8px 16px;
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .navbar a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      transition: left 0.3s;
+    }
+
+    .navbar a:hover::before {
+      left: 0;
+    }
+
+    .navbar a:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .navbar a:active {
+      transform: translateY(0);
+    }
+    
+    /* الحاوية الرئيسية */
+    .container {
+      padding: 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      animation: fadeIn 0.6s ease-out 0.3s both;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* العناوين */
+    h2 {
+      color: #1b4332;
+      margin-bottom: 25px;
+      font-size: 28px;
+      font-weight: 700;
+      position: relative;
+      padding-bottom: 12px;
+      display: inline-block;
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60%;
+      height: 4px;
+      background: linear-gradient(90deg, #2d6a4f, #40916c);
+      border-radius: 2px;
+      animation: expandWidth 0.8s ease-out;
+    }
+
+    @keyframes expandWidth {
+      from { width: 0; }
+      to { width: 60%; }
+    }
+    
+    /* تنسيق الجدول */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      border-radius: 15px;
+      overflow: hidden;
+      margin-top: 25px;
+      animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    th {
+      background: linear-gradient(135deg, #1b4332, #2d6a4f);
+      color: white;
+      padding: 16px;
+      text-align: center;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+
+    td {
+      padding: 14px;
+      text-align: center;
+      border-bottom: 1px solid #f0f0f0;
+      transition: all 0.3s ease;
+    }
+
+    /* تأثير عند المرور بالماوس */
+    tbody tr {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    tbody tr:hover {
+      background: linear-gradient(90deg, #f0fdf4, #dcfce7);
+      transform: scale(1.01);
+      box-shadow: 0 4px 15px rgba(45, 106, 79, 0.1);
+    }
+    
+    /* زر الحجز */
+    .book-btn {
+      text-decoration: none;
+      color: white;
+      background: linear-gradient(135deg, #2d6a4f, #40916c);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(45, 106, 79, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .book-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.5s, height 0.5s;
+    }
+
+    .book-btn:hover::before {
+      width: 200px;
+      height: 200px;
+    }
+
+    .book-btn:hover {
+      background: linear-gradient(135deg, #1b4332, #2d6a4f);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(45, 106, 79, 0.4);
+    }
+
+    .book-btn:active {
+      transform: translateY(0);
+    }
+
+    /* زر الحذف */
+    .delete-btn {
+      color: white;
+      background: linear-gradient(135deg, #d00000, #9d0208);
+      padding: 8px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(208, 0, 0, 0.3);
+      margin-left: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .delete-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.5s, height 0.5s;
+    }
+
+    .delete-btn:hover::before {
+      width: 200px;
+      height: 200px;
+    }
+
+    .delete-btn:hover {
+      background: linear-gradient(135deg, #9d0208, #6a040f);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(208, 0, 0, 0.4);
+    }
+
+    .delete-btn:active {
+      transform: translateY(0);
+    }
+    
+    /* صندوق الأدمن */
+    .admin-box {
+      background: linear-gradient(135deg, #ffffff, #f8f9fa);
+      padding: 30px;
+      margin-bottom: 35px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+      border: 1px solid rgba(45, 106, 79, 0.1);
+      transition: all 0.3s ease;
+      animation: slideUp 0.6s ease-out 0.2s both;
+    }
+
+    .admin-box:hover {
+      box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+      transform: translateY(-3px);
+    }
+
+    .admin-box h3 {
+      color: #1b4332;
+      margin-bottom: 20px;
+      font-size: 20px;
+      font-weight: 700;
+    }
+    
+    /* تنسيق حقول الإدخال */
+    input, select {
+      padding: 12px 14px;
+      margin-right: 12px;
+      border-radius: 10px;
+      border: 2px solid #e0e0e0;
+      font-size: 14px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: #fafafa;
+    }
+
+    input:hover, select:hover {
+      border-color: #2d6a4f;
+      background: #fff;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #2d6a4f;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(45, 106, 79, 0.1);
+      transform: translateY(-2px);
+    }
+
+    /* تنسيق الأزرار */
+    button {
+      padding: 12px 20px;
+      border: none;
+      background: linear-gradient(135deg, #2d6a4f, #40916c);
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 3px 10px rgba(45, 106, 79, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.5s, height 0.5s;
+    }
+
+    button:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #1b4332, #2d6a4f);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 18px rgba(45, 106, 79, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+    
+    /* شارة الأدمن */
+    .badge {
+      background: linear-gradient(135deg, #1b4332, #2d6a4f);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      margin-left: 10px;
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(27, 67, 50, 0.3);
+      animation: badgePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes badgePulse {
+      0%, 100% {
+        box-shadow: 0 2px 8px rgba(27, 67, 50, 0.3);
+      }
+      50% {
+        box-shadow: 0 2px 15px rgba(27, 67, 50, 0.5);
+      }
+    }
+    
+    /* رسالة نجاح */
+    .success-msg {
+      background: linear-gradient(135deg, #d4edda, #c3e6cb);
+      color: #155724;
+      padding: 14px 20px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      display: none;
+      border: 2px solid #b1dfbb;
+      box-shadow: 0 4px 15px rgba(21, 87, 36, 0.15);
+      animation: slideInTop 0.5s ease-out;
+      font-weight: 500;
+    }
+
+    @keyframes slideInTop {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* صفحات مختلفة */
+    .page-section {
+      display: none;
+    }
+    
+    .page-section.active {
+      display: block;
+    }
+    
+    /* إحصائيات */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 25px;
+      margin: 35px 0;
+    }
+
+    .stat-box {
+      background: linear-gradient(135deg, #ffffff, #f8f9fa);
+      padding: 30px;
+      border-left: 6px solid #2d6a4f;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      animation: fadeInScale 0.6s ease-out backwards;
+    }
+
+    .stat-box:nth-child(1) { animation-delay: 0.1s; }
+    .stat-box:nth-child(2) { animation-delay: 0.2s; }
+    .stat-box:nth-child(3) { animation-delay: 0.3s; }
+    .stat-box:nth-child(4) { animation-delay: 0.4s; }
+
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .stat-box::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(45, 106, 79, 0.05), transparent);
+      transform: rotate(45deg);
+      transition: all 0.5s;
+    }
+
+    .stat-box:hover::before {
+      right: -100%;
+    }
+
+    .stat-box:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+      border-left-width: 8px;
+    }
+
+    .stat-box h3 {
+      margin: 0;
+      color: #2d6a4f;
+      font-size: 15px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-box p {
+      font-size: 40px;
+      margin-top: 15px;
+      font-weight: 800;
+      color: #1b4332;
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(135deg, #1b4332, #2d6a4f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    /* شبكة الرسوم البيانية */
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 35px;
+      margin-top: 45px;
+    }
+
+    .chart-box {
+      background: linear-gradient(135deg, #ffffff, #f8f9fa);
+      padding: 30px;
+      border-radius: 18px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.1);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid rgba(45, 106, 79, 0.1);
+      animation: fadeInUp 0.8s ease-out backwards;
+    }
+
+    .chart-box:nth-child(1) { animation-delay: 0.2s; }
+    .chart-box:nth-child(2) { animation-delay: 0.4s; }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .chart-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.15);
+    }
+
+    .chart-box h3 {
+      color: #1b4332;
+      margin-bottom: 20px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    
+    /* ألوان حالة الحجز */
+    .status-pending {
+      color: #ff8800;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-approved {
+      color: #2d6a4f;
+      font-weight: 700;
+      background: linear-gradient(135deg, #e6f4ea, #d4edda);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-rejected {
+      color: #d00000;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffe0e0, #ffc9c9);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-cancelled {
+      color: #666;
+      font-weight: 700;
+      background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px 20px;
+      }
+
+      .navbar a {
+        margin-left: 10px;
+        font-size: 14px;
+      }
+
+      .container {
+        padding: 20px;
+      }
+
+      h2 {
+        font-size: 22px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-grid {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        font-size: 13px;
+      }
+
+      th, td {
+        padding: 10px 8px;
+      }
+    }
+    
+    /* Calendar styles */
+    .calendar-container {
+      background: linear-gradient(135deg, #ffffff, #f8f9fa);
+      padding: 30px;
+      border-radius: 18px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.1);
+      border: 1px solid rgba(45, 106, 79, 0.1);
+      animation: fadeInScale 0.8s ease-out;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .calendar-header button {
+      padding: 10px 18px;
+      background: linear-gradient(135deg, #2d6a4f, #40916c);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 10px rgba(45, 106, 79, 0.3);
+    }
+
+    .calendar-header button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 18px rgba(45, 106, 79, 0.4);
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      text-align: center;
+    }
+
+    .calendar-day {
+      padding: 12px;
+      border: 2px solid #f0f0f0;
+      border-radius: 10px;
+      min-height: 70px;
+      font-size: 14px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: white;
+    }
+
+    .calendar-day:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .calendar-day.header {
+      background: linear-gradient(135deg, #2d6a4f, #40916c);
+      color: white;
+      font-weight: 700;
+      min-height: auto;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 12px;
+      border: none;
+    }
+
+    .calendar-day.has-booking {
+      background: linear-gradient(135deg, #e6f4ea, #d4edda);
+      border-color: #2d6a4f;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(45, 106, 79, 0.2);
+    }
+
+    .calendar-day.has-booking:hover {
+      background: linear-gradient(135deg, #d4edda, #c3e6cb);
+      transform: scale(1.08);
+      box-shadow: 0 6px 18px rgba(45, 106, 79, 0.3);
+    }
+
+    .booking-dot {
+      width: 8px;
+      height: 8px;
+      background: #2d6a4f;
+      border-radius: 50%;
+      display: inline-block;
+      margin: 2px;
+      animation: dotPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes dotPulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.2);
+        opacity: 0.7;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- شريط التنقل -->
+<div class="navbar">
+  <div>
+    <span>Welcome, <strong id="userName"></strong></span>
+    <span class="badge" id="adminBadge" style="display:none;">Admin</span>
+  </div>
+  <div>
+    <a href="#" onclick="showPage('dashboard')">Dashboard</a>
+    <a href="#" onclick="showPage('myBookings')">My Bookings</a>
+    <a href="#" onclick="showPage('calendar')">Calendar</a>
+    <a href="#" onclick="showPage('admin')" id="adminLink" style="display:none;">Admin Panel</a>
+    <a href="#" onclick="showPage('statistics')" id="statsLink" style="display:none;">Statistics</a>
+    <a href="#" onclick="handleLogout()">Logout</a>
+  </div>
+</div>
+
+<!-- المحتوى الرئيسي -->
+<div class="container">
+  
+  <!-- رسالة النجاح -->
+  <div class="success-msg" id="successMsg"></div>
+  
+  
+  <!-- =====================================================
+       صفحة Dashboard (القاعات)
+       ===================================================== -->
+  
+  <div id="dashboardPage" class="page-section active">
+    
+    <!-- قسم إضافة قاعة (للأدمن فقط) -->
+    <div class="admin-box" id="addRoomBox" style="display:none;">
+      <h3>➕ Add New Classroom</h3>
+      <form onsubmit="addRoom(event)">
+        <input type="text" id="newRoomName" placeholder="Classroom Name" required />
+        <select id="newRoomType" required>
+          <option value="">-- Select Type --</option>
+          <option value="Lab">Lab</option>
+          <option value="Hall">Hall</option>
+          <option value="Classroom">Classroom</option>
+        </select>
+        <input type="number" id="newCapacity" placeholder="Capacity" required min="1" />
+        <button type="submit">Add Classroom</button>
+      </form>
+    </div>
+    
+    <h2>🏫 Available Classrooms</h2>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Classroom</th>
+          <th>Type</th>
+          <th>Capacity</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="roomsTableBody">
+        <!-- يتم ملؤها بـ JavaScript -->
+      </tbody>
+    </table>
+    
+  </div>
+  
+  
+  <!-- =====================================================
+       صفحة My Bookings
+       ===================================================== -->
+  
+  <div id="myBookingsPage" class="page-section">
+    <h2>📋 My Bookings</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Classroom</th>
+          <th>Date</th>
+          <th>Start Time</th>
+          <th>End Time</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="myBookingsBody">
+        <!-- يتم ملؤها بـ JavaScript -->
+      </tbody>
+    </table>
+  </div>
+  
+  
+  <!-- =====================================================
+       صفحة Calendar
+       ===================================================== -->
+  
+  <div id="calendarPage" class="page-section">
+    <h2>📅 Bookings Calendar</h2>
+    <div class="calendar-container">
+      <div class="calendar-header">
+        <button onclick="prevMonth()">◀ Previous</button>
+        <h3 id="calendarTitle" style="margin:0;"></h3>
+        <button onclick="nextMonth()">Next ▶</button>
+      </div>
+      <div class="calendar-grid" id="calendarGrid">
+        <!-- يتم ملؤها بـ JavaScript -->
+      </div>
+    </div>
+  </div>
+  
+  
+  <!-- =====================================================
+       صفحة Admin Panel
+       ===================================================== -->
+  
+  <div id="adminPage" class="page-section">
+    <h2>⚙️ Manage All Bookings</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>User</th>
+          <th>Classroom</th>
+          <th>Date</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="adminBookingsBody">
+        <!-- يتم ملؤها بـ JavaScript -->
+      </tbody>
+    </table>
+  </div>
+  
+  
+  <!-- =====================================================
+       صفحة Statistics (للأدمن فقط)
+       ===================================================== -->
+  
+  <div id="statisticsPage" class="page-section">
+    <h2>📊 Booking Statistics</h2>
+    
+    <!-- الإحصائيات -->
+    <div class="stats">
+      <div class="stat-box">
+        <h3>Total Bookings</h3>
+        <p id="statTotal">0</p>
+      </div>
+      <div class="stat-box">
+        <h3>Pending</h3>
+        <p id="statPending">0</p>
+      </div>
+      <div class="stat-box">
+        <h3>Approved</h3>
+        <p id="statApproved">0</p>
+      </div>
+      <div class="stat-box">
+        <h3>Rejected</h3>
+        <p id="statRejected">0</p>
+      </div>
+    </div>
+    
+    <!-- الرسوم البيانية -->
+    <div class="chart-grid">
+      <div class="chart-box">
+        <h3>Booking Status Distribution</h3>
+        <canvas id="pieChart"></canvas>
+      </div>
+      <div class="chart-box">
+        <h3>Bookings by Status</h3>
+        <canvas id="barChart"></canvas>
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+
+<!-- =====================================================
+     JavaScript - المنطق الكامل
+     ===================================================== -->
+
+<script>
+
+/* =====================================================
+   التحقق من تسجيل الدخول
+   ===================================================== */
+
+// التحقق من وجود مستخدم مسجل دخوله
+if (!localStorage.getItem("user_id")) {
+  window.location.href = "index.html";
+}
+
+// الحصول على بيانات المستخدم الحالي
+const currentUser = {
+  id: parseInt(localStorage.getItem("user_id")),
+  name: localStorage.getItem("user_name"),
+  email: localStorage.getItem("user_email"),
+  role: localStorage.getItem("role")
+};
+
+// عرض اسم المستخدم
+document.getElementById("userName").textContent = currentUser.name;
+
+// إظهار عناصر الأدمن إذا كان المستخدم admin
+if (currentUser.role === "admin") {
+  document.getElementById("adminBadge").style.display = "inline";
+  document.getElementById("adminLink").style.display = "inline";
+  document.getElementById("statsLink").style.display = "inline";
+  document.getElementById("addRoomBox").style.display = "block";
+}
+
+
+/* =====================================================
+   بيانات القاعات الافتراضية
+   ===================================================== */
+
+let rooms = JSON.parse(localStorage.getItem("rooms")) || [
+  { id: 1, room_name: "Room A101", type: "Lab", capacity: 30 },
+  { id: 2, room_name: "Room B202", type: "Hall", capacity: 100 },
+  { id: 3, room_name: "Room C303", type: "Lab", capacity: 25 },
+  { id: 4, room_name: "Room D404", type: "Classroom", capacity: 40 }
+];
+
+let nextRoomId = rooms.length > 0 ? Math.max(...rooms.map(r => r.id)) + 1 : 1;
+
+
+/* =====================================================
+   بيانات الحجوزات
+   ===================================================== */
+
+let bookings = JSON.parse(localStorage.getItem("bookings")) || [
+  {
+    id: 1,
+    user_id: 2,
+    user_name: "Sara User",
+    room_id: 1,
+    room_name: "Room A101",
+    date: "2026-03-15",
+    start_time: "09:00",
+    end_time: "11:00",
+    status: "approved"
+  },
+  {
+    id: 2,
+    user_id: 2,
+    user_name: "Sara User",
+    room_id: 2,
+    room_name: "Room B202",
+    date: "2026-03-16",
+    start_time: "10:00",
+    end_time: "12:00",
+    status: "pending"
+  }
+];
+
+let nextBookingId = bookings.length > 0 ? Math.max(...bookings.map(b => b.id)) + 1 : 1;
+
+
+/* =====================================================
+   حفظ البيانات في localStorage
+   ===================================================== */
+
+function saveData() {
+  localStorage.setItem("rooms", JSON.stringify(rooms));
+  localStorage.setItem("bookings", JSON.stringify(bookings));
+}
+
+
+/* =====================================================
+   عرض الصفحات المختلفة
+   ===================================================== */
+
+function showPage(pageName) {
+  // إخفاء جميع الصفحات
+  document.querySelectorAll(".page-section").forEach(page => {
+    page.classList.remove("active");
+  });
+  
+  // إظهار الصفحة المطلوبة
+  const pageMap = {
+    'dashboard': 'dashboardPage',
+    'myBookings': 'myBookingsPage',
+    'calendar': 'calendarPage',
+    'admin': 'adminPage',
+    'statistics': 'statisticsPage'
+  };
+  
+  const pageId = pageMap[pageName];
+  if (pageId) {
+    document.getElementById(pageId).classList.add("active");
+    
+    // تحديث المحتوى حسب الصفحة
+    if (pageName === 'dashboard') {
+      renderRooms();
+    } else if (pageName === 'myBookings') {
+      renderMyBookings();
+    } else if (pageName === 'calendar') {
+      renderCalendar();
+    } else if (pageName === 'admin') {
+      renderAdminBookings();
+    } else if (pageName === 'statistics') {
+      renderStatistics();
+    }
+  }
+}
+
+
+/* =====================================================
+   عرض القاعات
+   ===================================================== */
+
+function renderRooms() {
+  const tbody = document.getElementById("roomsTableBody");
+  tbody.innerHTML = "";
+  
+  rooms.forEach(room => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${room.id}</td>
+      <td>${room.room_name}</td>
+      <td>${room.type}</td>
+      <td>${room.capacity}</td>
+      <td>
+        <button class="book-btn" onclick="bookRoom(${room.id})">Book</button>
+        ${currentUser.role === 'admin' ? 
+          `<button class="delete-btn" onclick="deleteRoom(${room.id})">Delete</button>` : ''}
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+
+/* =====================================================
+   حجز قاعة
+   ===================================================== */
+
+function bookRoom(roomId) {
+  const room = rooms.find(r => r.id === roomId);
+  if (!room) return;
+  
+  const date = prompt("Enter booking date (YYYY-MM-DD):");
+  if (!date) return;
+  
+  const startTime = prompt("Enter start time (HH:MM):");
+  if (!startTime) return;
+  
+  const endTime = prompt("Enter end time (HH:MM):");
+  if (!endTime) return;
+  
+  // التحقق من التعارض
+  const conflict = bookings.find(b => 
+    b.room_id === roomId && 
+    b.date === date && 
+    b.status !== 'cancelled' &&
+    ((startTime >= b.start_time && startTime < b.end_time) ||
+     (endTime > b.start_time && endTime <= b.end_time) ||
+     (startTime <= b.start_time && endTime >= b.end_time))
+  );
+  
+  if (conflict) {
+    alert("⚠️ This classroom is already booked for this time slot!");
+    return;
+  }
+  
+  // إضافة الحجز
+  const newBooking = {
+    id: nextBookingId++,
+    user_id: currentUser.id,
+    user_name: currentUser.name,
+    room_id: roomId,
+    room_name: room.room_name,
+    date: date,
+    start_time: startTime,
+    end_time: endTime,
+    status: "pending"
+  };
+  
+  bookings.push(newBooking);
+  saveData();
+  
+  showSuccess("✅ Booking request submitted successfully!");
+}
+
+
+/* =====================================================
+   عرض حجوزاتي
+   ===================================================== */
+
+function renderMyBookings() {
+  const tbody = document.getElementById("myBookingsBody");
+  tbody.innerHTML = "";
+  
+  const myBookings = bookings.filter(b => b.user_id === currentUser.id);
+  
+  if (myBookings.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7">No bookings found</td></tr>';
+    return;
+  }
+  
+  myBookings.forEach(booking => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${booking.id}</td>
+      <td>${booking.room_name}</td>
+      <td>${booking.date}</td>
+      <td>${booking.start_time}</td>
+      <td>${booking.end_time}</td>
+      <td class="status-${booking.status}">${booking.status.toUpperCase()}</td>
+      <td>
+        ${booking.status === 'pending' || booking.status === 'approved' ? 
+          `<button class="delete-btn" onclick="cancelBooking(${booking.id})">Cancel</button>` : 
+          '---'}
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+
+/* =====================================================
+   إلغاء حجز
+   ===================================================== */
+
+function cancelBooking(bookingId) {
+  if (!confirm("Are you sure you want to cancel this booking?")) return;
+  
+  const booking = bookings.find(b => b.id === bookingId);
+  if (booking) {
+    booking.status = "cancelled";
+    saveData();
+    renderMyBookings();
+    showSuccess("✅ Booking cancelled successfully!");
+  }
+}
+
+
+/* =====================================================
+   عرض جميع الحجوزات (للأدمن)
+   ===================================================== */
+
+function renderAdminBookings() {
+  const tbody = document.getElementById("adminBookingsBody");
+  tbody.innerHTML = "";
+  
+  if (bookings.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8">No bookings found</td></tr>';
+    return;
+  }
+  
+  bookings.forEach(booking => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${booking.id}</td>
+      <td>${booking.user_name}</td>
+      <td>${booking.room_name}</td>
+      <td>${booking.date}</td>
+      <td>${booking.start_time}</td>
+      <td>${booking.end_time}</td>
+      <td class="status-${booking.status}">${booking.status.toUpperCase()}</td>
+      <td>
+        ${booking.status === 'pending' ? 
+          `<button class="book-btn" onclick="approveBooking(${booking.id})">Approve</button>
+           <button class="delete-btn" onclick="rejectBooking(${booking.id})">Reject</button>` : 
+          '---'}
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+
+/* =====================================================
+   قبول حجز
+   ===================================================== */
+
+function approveBooking(bookingId) {
+  const booking = bookings.find(b => b.id === bookingId);
+  if (booking) {
+    booking.status = "approved";
+    saveData();
+    renderAdminBookings();
+    showSuccess("✅ Booking approved successfully!");
+  }
+}
+
+
+/* =====================================================
+   رفض حجز
+   ===================================================== */
+
+function rejectBooking(bookingId) {
+  const booking = bookings.find(b => b.id === bookingId);
+  if (booking) {
+    booking.status = "rejected";
+    saveData();
+    renderAdminBookings();
+    showSuccess("✅ Booking rejected!");
+  }
+}
+
+
+/* =====================================================
+   إضافة قاعة جديدة
+   ===================================================== */
+
+function addRoom(event) {
+  event.preventDefault();
+  
+  const name = document.getElementById("newRoomName").value.trim();
+  const type = document.getElementById("newRoomType").value;
+  const capacity = parseInt(document.getElementById("newCapacity").value);
+  
+  const newRoom = {
+    id: nextRoomId++,
+    room_name: name,
+    type: type,
+    capacity: capacity
+  };
+  
+  rooms.push(newRoom);
+  saveData();
+  
+  // إعادة تعيين النموذج
+  event.target.reset();
+  
+  renderRooms();
+  showSuccess("✅ Classroom added successfully!");
+}
+
+
+/* =====================================================
+   حذف قاعة
+   ===================================================== */
+
+function deleteRoom(roomId) {
+  if (!confirm("Are you sure you want to delete this classroom?")) return;
+  
+  rooms = rooms.filter(r => r.id !== roomId);
+  saveData();
+  renderRooms();
+  showSuccess("✅ Classroom deleted successfully!");
+}
+
+
+/* =====================================================
+   عرض التقويم
+   ===================================================== */
+
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+
+function renderCalendar() {
+  const monthNames = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"];
+  
+  document.getElementById("calendarTitle").textContent = 
+    `${monthNames[currentMonth]} ${currentYear}`;
+  
+  const grid = document.getElementById("calendarGrid");
+  grid.innerHTML = "";
+  
+  // أيام الأسبوع
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  days.forEach(day => {
+    const div = document.createElement("div");
+    div.className = "calendar-day header";
+    div.textContent = day;
+    grid.appendChild(div);
+  });
+  
+  // أول يوم في الشهر
+  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+  
+  // عدد أيام الشهر
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  
+  // خلايا فارغة قبل أول يوم
+  for (let i = 0; i < firstDay; i++) {
+    const div = document.createElement("div");
+    div.className = "calendar-day";
+    grid.appendChild(div);
+  }
+  
+  // أيام الشهر
+  for (let day = 1; day <= daysInMonth; day++) {
+    const div = document.createElement("div");
+    div.className = "calendar-day";
+    
+    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const dayBookings = bookings.filter(b => b.date === dateStr && b.status === 'approved');
+    
+    div.innerHTML = `<strong>${day}</strong>`;
+    
+    if (dayBookings.length > 0) {
+      div.classList.add("has-booking");
+      div.innerHTML += `<br>${dayBookings.length} booking(s)`;
+      div.onclick = () => showDayBookings(dateStr, dayBookings);
+    }
+    
+    grid.appendChild(div);
+  }
+}
+
+function showDayBookings(date, dayBookings) {
+  let msg = `Bookings for ${date}:\n\n`;
+  dayBookings.forEach(b => {
+    msg += `${b.room_name}: ${b.start_time} - ${b.end_time}\n`;
+  });
+  alert(msg);
+}
+
+function prevMonth() {
+  currentMonth--;
+  if (currentMonth < 0) {
+    currentMonth = 11;
+    currentYear--;
+  }
+  renderCalendar();
+}
+
+function nextMonth() {
+  currentMonth++;
+  if (currentMonth > 11) {
+    currentMonth = 0;
+    currentYear++;
+  }
+  renderCalendar();
+}
+
+
+/* =====================================================
+   عرض الإحصائيات
+   ===================================================== */
+
+function renderStatistics() {
+  const total = bookings.length;
+  const pending = bookings.filter(b => b.status === 'pending').length;
+  const approved = bookings.filter(b => b.status === 'approved').length;
+  const rejected = bookings.filter(b => b.status === 'rejected').length;
+  
+  document.getElementById("statTotal").textContent = total;
+  document.getElementById("statPending").textContent = pending;
+  document.getElementById("statApproved").textContent = approved;
+  document.getElementById("statRejected").textContent = rejected;
+  
+  // Pie Chart
+  const pieCtx = document.getElementById("pieChart");
+  if (window.pieChart) window.pieChart.destroy();
+  window.pieChart = new Chart(pieCtx, {
+    type: 'pie',
+    data: {
+      labels: ['Pending', 'Approved', 'Rejected'],
+      datasets: [{
+        data: [pending, approved, rejected],
+        backgroundColor: ['#ff8800', '#2d6a4f', '#d00000']
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }
+  });
+  
+  // Bar Chart
+  const barCtx = document.getElementById("barChart");
+  if (window.barChart) window.barChart.destroy();
+  window.barChart = new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Pending', 'Approved', 'Rejected'],
+      datasets: [{
+        label: 'Number of Bookings',
+        data: [pending, approved, rejected],
+        backgroundColor: ['#ff8800', '#2d6a4f', '#d00000']
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1
+          }
+        }
+      }
+    }
+  });
+}
+
+
+/* =====================================================
+   تسجيل الخروج
+   ===================================================== */
+
+function handleLogout() {
+  if (confirm("Are you sure you want to logout?")) {
+    localStorage.removeItem("user_id");
+    localStorage.removeItem("user_name");
+    localStorage.removeItem("user_email");
+    localStorage.removeItem("role");
+    window.location.href = "index.html";
+  }
+}
+
+
+/* =====================================================
+   إظهار رسالة النجاح
+   ===================================================== */
+
+function showSuccess(message) {
+  const msg = document.getElementById("successMsg");
+  msg.textContent = message;
+  msg.style.display = "block";
+  
+  setTimeout(() => {
+    msg.style.display = "none";
+  }, 3000);
+}
+
+
+/* =====================================================
+   تحميل الصفحة الأولى
+   ===================================================== */
+
+renderRooms();
+
+</script>
+
+</body>
+</html>

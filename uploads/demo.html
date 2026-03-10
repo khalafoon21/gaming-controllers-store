@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HIE Room Booking System - Demo</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      min-height: 100vh;
+      padding: 40px 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Animated Background Pattern */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background-image:
+        radial-gradient(circle at 20% 50%, rgba(45, 106, 79, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(64, 145, 108, 0.1) 0%, transparent 50%);
+      animation: rotateBackground 20s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes rotateBackground {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .container {
+      max-width: 950px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      border-radius: 25px;
+      padding: 50px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4),
+                  0 0 0 1px rgba(255, 255, 255, 0.1);
+      position: relative;
+      z-index: 10;
+      animation: fadeInScale 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    h1 {
+      color: #1b4332;
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 42px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #1b4332, #2d6a4f, #40916c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeInDown 0.8s ease-out 0.2s both;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #555;
+      margin-bottom: 50px;
+      font-size: 18px;
+      font-weight: 500;
+      animation: fadeInDown 0.8s ease-out 0.4s both;
+    }
+    
+    .section {
+      margin-bottom: 50px;
+      animation: fadeInUp 0.8s ease-out backwards;
+    }
+
+    .section:nth-child(1) { animation-delay: 0.2s; }
+    .section:nth-child(2) { animation-delay: 0.4s; }
+    .section:nth-child(3) { animation-delay: 0.6s; }
+    .section:nth-child(4) { animation-delay: 0.8s; }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h2 {
+      color: #1b4332;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      font-size: 26px;
+      font-weight: 700;
+      position: relative;
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, #2d6a4f, #40916c);
+      border-radius: 2px;
+      animation: expandWidth 0.6s ease-out;
+    }
+
+    @keyframes expandWidth {
+      from { width: 0; }
+      to { width: 80px; }
+    }
+    
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 25px;
+      margin-top: 25px;
+    }
+
+    .feature-box {
+      background: linear-gradient(135deg, #f8f9fa, #ffffff);
+      padding: 25px;
+      border-radius: 15px;
+      border-left: 5px solid #2d6a4f;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-box::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(45, 106, 79, 0.05), transparent);
+      transform: rotate(45deg);
+      transition: all 0.5s;
+    }
+
+    .feature-box:hover::before {
+      right: -100%;
+    }
+
+    .feature-box:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+      border-left-width: 7px;
+    }
+
+    .feature-box h3 {
+      color: #1b4332;
+      margin-bottom: 12px;
+      font-size: 19px;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feature-box p {
+      color: #555;
+      font-size: 14px;
+      line-height: 1.7;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .accounts {
+      background: linear-gradient(135deg, #e6f4ea, #d4edda);
+      padding: 25px;
+      border-radius: 15px;
+      margin-top: 25px;
+      box-shadow: 0 5px 20px rgba(45, 106, 79, 0.15);
+    }
+
+    .account {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 18px;
+      border: 2px solid #2d6a4f;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .account::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(45, 106, 79, 0.05), transparent);
+      transition: left 0.5s;
+    }
+
+    .account:hover::before {
+      left: 100%;
+    }
+
+    .account:hover {
+      transform: translateX(8px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+      border-color: #1b4332;
+    }
+
+    .account:last-child {
+      margin-bottom: 0;
+    }
+
+    .account h4 {
+      color: #1b4332;
+      margin-bottom: 12px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .account p {
+      color: #555;
+      font-size: 14px;
+      margin: 8px 0;
+      line-height: 1.6;
+    }
+
+    .account code {
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      padding: 4px 10px;
+      border-radius: 6px;
+      color: #d00000;
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+      border: 1px solid #dee2e6;
+    }
+    
+    .btn-container {
+      text-align: center;
+      margin-top: 50px;
+      animation: fadeInUp 0.8s ease-out 1s both;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 16px 45px;
+      background: linear-gradient(135deg, #2d6a4f, #40916c, #52b788);
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 18px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      margin: 10px;
+      box-shadow: 0 6px 20px rgba(45, 106, 79, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .btn:hover::before {
+      width: 400px;
+      height: 400px;
+    }
+
+    .btn:hover {
+      background: linear-gradient(135deg, #1b4332, #2d6a4f, #40916c);
+      transform: translateY(-5px);
+      box-shadow: 0 12px 35px rgba(45, 106, 79, 0.6);
+    }
+
+    .btn:active {
+      transform: translateY(-2px);
+    }
+    
+    .tech-stack {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-top: 25px;
+    }
+
+    .tech-badge {
+      background: linear-gradient(135deg, #2d6a4f, #40916c);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 4px 15px rgba(45, 106, 79, 0.3);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: fadeInScale 0.6s ease-out backwards;
+    }
+
+    .tech-badge:nth-child(1) { animation-delay: 0.1s; }
+    .tech-badge:nth-child(2) { animation-delay: 0.2s; }
+    .tech-badge:nth-child(3) { animation-delay: 0.3s; }
+    .tech-badge:nth-child(4) { animation-delay: 0.4s; }
+    .tech-badge:nth-child(5) { animation-delay: 0.5s; }
+
+    .tech-badge:hover {
+      transform: translateY(-5px) scale(1.1);
+      box-shadow: 0 8px 25px rgba(45, 106, 79, 0.5);
+      background: linear-gradient(135deg, #1b4332, #2d6a4f);
+    }
+    
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 2px solid #eee;
+      color: #999;
+      font-size: 14px;
+    }
+    
+    .icon {
+      font-size: 24px;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  
+  <h1>🏫 HIE Room Booking System</h1>
+  <p class="subtitle">نظام حجز القاعات الدراسية - تم التحويل من PHP إلى HTML+CSS+JavaScript</p>
+  
+  <!-- المميزات -->
+  <div class="section">
+    <h2>✨ المميزات الرئيسية</h2>
+    <div class="features">
+      <div class="feature-box">
+        <h3>🔐 تسجيل الدخول</h3>
+        <p>نظام تسجيل دخول آمن مع دعم حسابات متعددة (Admin & User)</p>
+      </div>
+      <div class="feature-box">
+        <h3>📅 حجز القاعات</h3>
+        <p>إمكانية حجز القاعات الدراسية مع التحقق من التعارضات</p>
+      </div>
+      <div class="feature-box">
+        <h3>📊 الإحصائيات</h3>
+        <p>رسوم بيانية تفاعلية لعرض إحصائيات الحجوزات</p>
+      </div>
+      <div class="feature-box">
+        <h3>🗓️ التقويم</h3>
+        <p>تقويم شهري يعرض جميع الحجوزات المعتمدة</p>
+      </div>
+      <div class="feature-box">
+        <h3>⚙️ لوحة الأدمن</h3>
+        <p>إدارة كاملة للقاعات والحجوزات (للمدير فقط)</p>
+      </div>
+      <div class="feature-box">
+        <h3>📱 تصميم متجاوب</h3>
+        <p>يعمل على جميع الأجهزة والشاشات</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- التقنيات المستخدمة -->
+  <div class="section">
+    <h2>🛠️ التقنيات المستخدمة</h2>
+    <div class="tech-stack">
+      <span class="tech-badge">HTML5</span>
+      <span class="tech-badge">CSS3</span>
+      <span class="tech-badge">JavaScript (ES6+)</span>
+      <span class="tech-badge">Chart.js</span>
+      <span class="tech-badge">LocalStorage</span>
+    </div>
+  </div>
+  
+  <!-- حسابات التجربة -->
+  <div class="section">
+    <h2>👥 حسابات التجربة</h2>
+    <div class="accounts">
+      
+      <div class="account">
+        <h4>🔑 حساب المدير (Admin)</h4>
+        <p><strong>البريد الإلكتروني:</strong> <code>admin@university.edu</code></p>
+        <p><strong>كلمة المرور:</strong> <code>admin123</code></p>
+        <p style="margin-top:10px; color:#2d6a4f;">
+          <strong>الصلاحيات:</strong> إضافة/حذف القاعات، الموافقة/رفض الحجوزات، عرض الإحصائيات
+        </p>
+      </div>
+      
+      <div class="account">
+        <h4>👤 حساب المستخدم (User)</h4>
+        <p><strong>البريد الإلكتروني:</strong> <code>sara@university.edu</code></p>
+        <p><strong>كلمة المرور:</strong> <code>user123</code></p>
+        <p style="margin-top:10px; color:#2d6a4f;">
+          <strong>الصلاحيات:</strong> حجز القاعات، عرض الحجوزات الشخصية، إلغاء الحجوزات
+        </p>
+      </div>
+      
+      <div class="account">
+        <h4>👨‍🏫 حساب عضو هيئة التدريس</h4>
+        <p><strong>البريد الإلكتروني:</strong> <code>faculty.member@university.edu</code></p>
+        <p><strong>كلمة المرور:</strong> <code>faculty123</code></p>
+        <p style="margin-top:10px; color:#2d6a4f;">
+          <strong>الصلاحيات:</strong> نفس صلاحيات المستخدم العادي
+        </p>
+      </div>
+      
+    </div>
+  </div>
+  
+  <!-- الفروقات -->
+  <div class="section">
+    <h2>🔄 التحويل من PHP إلى JavaScript</h2>
+    <div class="features">
+      <div class="feature-box">
+        <h3>✅ تم الاحتفاظ به</h3>
+        <p>• نفس التصميم بالكامل<br>
+           • نفس الألوان والخطوط<br>
+           • نفس الوظائف الأساسية<br>
+           • نفس تجربة المستخدم</p>
+      </div>
+      <div class="feature-box">
+        <h3>🔄 تم تغييره</h3>
+        <p>• MySQL → localStorage<br>
+           • PHP Sessions → localStorage<br>
+           • Server-side → Client-side<br>
+           • إضافة تأثيرات حركية</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- أزرار التشغيل -->
+  <div class="btn-container">
+    <a href="index.html" class="btn">🚀 تشغيل النظام</a>
+    <a href="README.md" class="btn" style="background: linear-gradient(135deg, #666, #888);">📖 قراءة التوثيق</a>
+  </div>
+  
+  <!-- التذييل -->
+  <div class="footer">
+    <p>© 2024 HIE Room Booking System</p>
+    <p>تم التحويل من PHP إلى HTML+CSS+JavaScript مع الحفاظ على نفس التصميم</p>
+  </div>
+  
+</div>
+
+</body>
+</html>
